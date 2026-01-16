@@ -10,5 +10,6 @@ loader.load_data()
 
 loader.display_basics_stats("train")
 loader.display_basics_stats("test")
-loader.show_image(0, "train")
-loader.show_image(42, "test")
+# loader.show_image(0, "train")
+# loader.show_image(42, "test")
+loader.show_mean_digits("train")

@@ -87,7 +87,7 @@ class MnistDataLoader(object):
         return {"total": total, "counts": counts}                
 
 
-    def show_image(self, index: int, which: str = 'train') -> None:
+    def show_image(self, index: int, which: str = 'train') -> int:
         if which == 'train':
             x, y = self.x_train, self.y_train
         elif which == 'test':
@@ -95,7 +95,7 @@ class MnistDataLoader(object):
         else:
             raise ValueError("which must be 'train' or 'test'")
 
-        if y is None or y is None:
+        if x is None or y is None:
             raise RuntimeError("Dataset not loaded: call load_data() first")
 
         if index < 0 or index >= x.shape[0]:
@@ -111,3 +111,41 @@ class MnistDataLoader(object):
         
         return label
         
+
+    def mean_image_per_digit(self, which: str = 'train') -> np.ndarray:
+        if which == 'train':
+            x, y = self.x_train, self.y_train
+        elif which == 'test':
+            x, y = self.x_test, self.y_test
+        else:
+            raise ValueError("which must be 'train' or 'test'")
+
+        if x is None or y is None:
+            raise RuntimeError("Dataset not loaded: call load_data() first")
+        
+        means = np.zeros((10, 28, 28), dtype=np.float32)
+        
+        for digit in range(10):
+            digit_imgs = x[y == digit]
+            if digit_imgs.shape[0] == 0:
+                raise ValueError(f"No example of the digit {digit} in {which.upper()}")
+            means[digit] = digit_imgs.mean(axis=0)
+        
+        return means
+    
+    
+    def show_mean_digits(self, which: str = 'train') -> None:
+        means = self.mean_image_per_digit(which)
+        
+        fig, axes = plt.subplots(2, 5, figsize=(10, 4))
+        axes = axes.ravel()
+        
+        for d in range(10):
+            axes[d].imshow(means[d], cmap="gray", vmin=0, vmax=255)
+            axes[d].set_title(f"{d}")
+            axes[d].axis("off")
+
+        fig.suptitle(f"MNIST {which.upper()} - Mean image per digit")
+        plt.tight_layout()
+        plt.show()
+
