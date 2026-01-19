@@ -1,6 +1,8 @@
 import numpy as np
 import struct
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 class MnistDataLoader(object):
     def __init__( self, train_imgs_path, train_labels_path, test_imgs_path, test_labels_path,):
@@ -35,7 +37,6 @@ class MnistDataLoader(object):
             if rows != 28 or cols != 28:
                 raise ValueError(f"Images: unexpected size {rows}x{cols} (expected 28x28)")
             data = np.frombuffer(file.read(), dtype=np.uint8)
-            
         expected = n * rows * cols
         if data.shape[0] != expected:
             raise ValueError(f"Images: mismatch in pixel count {data.shape[0]} (expected {expected})")
@@ -61,7 +62,6 @@ class MnistDataLoader(object):
             X = self.X_test
         else:
             raise ValueError("which must be 'train' or 'test'")
-
         if X is None:
             raise RuntimeError("Dataset not loaded: call load_data() first")
 
@@ -79,7 +79,6 @@ class MnistDataLoader(object):
             y = self.y_test
         else:
             raise ValueError("which must be 'train' or 'test'")
-        
         if y is None:
             raise RuntimeError("Dataset not loaded: call load_data() first")
         
@@ -96,7 +95,50 @@ class MnistDataLoader(object):
             else:
                 print(f"{digit}: {c:5d}")
         print("\n")
-        return {"total": total, "counts": counts}                
+        return {"total": total, "counts": counts}
+    
+    
+    def display_digits_distribution_graph(self, which: str = 'train') -> None:
+        if which == 'train':
+            y = self.y_train
+        elif which == 'test':
+            y = self.y_test
+        else:
+            raise ValueError("which must be 'train' or 'test'")
+        if y is None:
+            raise RuntimeError("Dataset not loaded: call load_data() first")
+        
+        sns.countplot(x=y)
+        plt.show()
+        
+
+    def display_digits_distribution_percent_graph(self, which: str = 'train') -> None:
+        if which == 'train':
+            y = self.y_train
+        elif which == 'test':
+            y = self.y_test
+        else:
+            raise ValueError("which must be 'train' or 'test'")
+        if y is None:
+            raise RuntimeError("Dataset not loaded: call load_data() first")
+        
+        counts = np.bincount(y, minlength=10)
+        total = int(counts.sum())
+        percent = (counts / total * 100.0) if total > 0 else np.zeros_like(counts, dtype=np.float32)
+        df = pd.DataFrame({
+            "digit": np.arange(10),
+            "count": counts.astype(int),
+            "percent": percent,
+        })
+
+        sns.set_theme(style="whitegrid")
+        ax = sns.barplot(data=df, x="digit", y="count", color="#4C72B0")
+        ax.set_title(f"MNIST {which.upper()} - Répartition des digits")
+        ax.set_xlabel("Digit")
+        ax.set_ylabel("Nombre d'exemplaires")
+        for i, row in df.iterrows():
+            ax.text(i, row["count"], f"{row['percent']:.1f}%", ha="center", va="bottom", fontsize=9)
+        plt.show()
 
 
     def show_image(self, index: int, which: str = 'train') -> int:
@@ -106,7 +148,6 @@ class MnistDataLoader(object):
             X, y = self.X_test, self.y_test
         else:
             raise ValueError("which must be 'train' or 'test'")
-
         if X is None or y is None:
             raise RuntimeError("Dataset not loaded: call load_data() first")
 
@@ -131,7 +172,6 @@ class MnistDataLoader(object):
             X, y = self.X_test, self.y_test
         else:
             raise ValueError("which must be 'train' or 'test'")
-
         if X is None or y is None:
             raise RuntimeError("Dataset not loaded: call load_data() first")
         
