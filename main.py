@@ -1,4 +1,5 @@
 from mnist_loader import MnistDataLoader
+import mnist_viz as viz
 
 train_imgs = "input/train-images.idx3-ubyte"
 train_labels = "input/train-labels.idx1-ubyte"
@@ -8,20 +9,24 @@ test_labels = "input/t10k-labels.idx1-ubyte"
 loader = MnistDataLoader(train_imgs, train_labels, test_imgs, test_labels)
 loader.load_data()
 
-# Show digits distribution
-# loader.display_basic_stats("train")
-# loader.display_basic_stats("test")
+# Stats (prints)
+viz.display_basic_stats(loader, "train")
+viz.display_basic_stats(loader, "test")
 
-# Show selected image
-# loader.show_image(0, "train")
-# loader.show_image(42, "test")
+# Afficher une image
+viz.show_image(loader, 0, "train")
+viz.show_image(loader, 42, "test")
 
-# # Show mean digits
-# loader.show_mean_digits("train")
+# Moyenne par digit
+viz.show_mean_digits(loader, "train")
 
-# # Show flatten images size
-# loader.flatten_images_inplace(normalize=True)
-# print(loader.X_train_flat.shape)
-# print(loader.X_test_flat.shape) 
+# Matrices pour la partie Prediction (n, 784)
+X_train, y_train = loader.get_Xy("train", flat=True, normalize=True)
+X_test, y_test = loader.get_Xy("test", flat=True, normalize=True)
 
-print(loader.display_digits_distribution_percent_graph())
+print(X_train.shape)  # (60000, 784)
+print(X_test.shape)   # (10000, 784)
+
+# Graphiques distribution
+viz.display_digits_distribution_percent_graph(loader, "train", show_percent=False)
+viz.display_digits_distribution_percent_graph(loader, "train", show_percent=True)
