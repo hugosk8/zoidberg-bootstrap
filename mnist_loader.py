@@ -148,4 +148,17 @@ class MnistDataLoader(object):
         fig.suptitle(f"MNIST {which.upper()} - Mean image per digit")
         plt.tight_layout()
         plt.show()
+ 
+    
+    def flatten_images_inplace(self, normalize: bool = False) -> None:
+        if self.x_test is None or self.x_test is None:
+            raise RuntimeError("Dataset not loaded: call load_data() first")
+        
+        self.x_train_flat = self.x_train.reshape(self.x_train.shape[0], 28 * 28)
+        self.x_test_flat = self.x_test.reshape(self.x_test.shape[0], 28 * 28)
+        
+        if normalize:
+            self.x_train_flat = self.x_train_flat.astype(np.float32) / 255.0
+            self.x_test_flat = self.x_test_flat.astype(np.float32) / 255.0
+            
 
